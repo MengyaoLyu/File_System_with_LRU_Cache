@@ -1,0 +1,83 @@
+This directory contains an implementation of a layered block store.
+Your project to-do list consists of the following:
+
+1) read README to learn about the available layers
+
+2) run "make" in order to compile the sources.  This should generate
+   an executable called "trace" that can be used for testing your
+   software.  The syntax of trace is as follows:
+
+   		./trace [trace-file [cache-size]]
+
+   The default trace-file is "trace.txt", and we have included an
+   example.  The optional cache-size lets you set the size of the
+   cache.
+
+3) run "./trace".  The output will likely look like this:
+
+	blocksize:  512
+	refs/block: 128
+	!!TDERR: setsize not yet supported
+	!!ERROR: tracedisk_run: setsize(1, 0) failed
+	!!CHKSIZE 10: nblocks 1: 0 != 2
+	!$STAT: #nnblocks:  0
+	!$STAT: #nsetsize:  0
+	!$STAT: #nread:     32
+	!$STAT: #nwrite:    20
+
+4) look in treedisk.c and look for the function treedisk_setsize().
+   It is currently incomplete and causes the error that you saw
+   in the previous step.  Implement the missing code.  You only need
+   to support setting the size to 0.  If you run ./trace again, the
+   output should look more like:
+
+		blocksize:  512
+		refs/block: 128
+		!$STAT: #nnblocks:  0
+		!$STAT: #nsetsize:  0
+		!$STAT: #nread:     36
+		!$STAT: #nwrite:    24
+
+5) look in cachedisk.c.  It is supposed to cache blocks, but currently
+   it simply forwards read and write operations to the layer below.
+   You are to implement a caching algorithm. You can use any
+   algorithm that appeared in the literature (LRU, LFU, MRU, ...) or
+   design your own.  Note that it is supposed to be a "write-through"
+   cache: the write operation cannot buffer writes until a later time.
+
+6) we are going to run a contest!  You are to provide your own version
+   of the file "trace.txt".  We will run everybody's trace against
+   everybody's cache layer.  In particular, we will run ./trace with
+   your treedisk and caching layer (configured with 16 blocks) against
+   everybody's trace, and count up the total number of read operations
+   that your caching layer performs.  We will rank contestants by this
+   total.
+
+   Note that you will get disqualified if your treedisk layer or
+   caching layer does not work.
+   You will also get disqualified if you cache any
+   user data in a place other than the memory that is passed to
+   the caching layer, or if you change the layout of the treedisk
+   file system.  The outcome of this contest does not count
+   toward your Project grade---however, there will be prizes.
+
+   Your trace.txt file has the following limitations:
+
+   		- it can have at most 10,000 lines/commands
+		- inode numbers must range between 0 and 127 inclusive
+		- block numbers must range between 0 and (1<<27)-1 inclusive
+
+   To win, you can use the following strategies or a combination:
+
+		- defensive approach: modify treedisk and/or cachedisk so as
+		  to minimize the number of read operations below.
+		- offensive approach: create a trace.txt that makes it very
+		  hard for the underlying layers (except yours of course) to
+		  cache anything.
+
+7) Submit the following files on CMS, but be sure you use your git
+repository wisely so as to protect your self against any unexpected
+life or scholastic events.
+		treedisk.c
+		cachedisk.c
+		trace.txt  -- just overwrite the original trace.txt
